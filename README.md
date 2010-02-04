@@ -1,7 +1,9 @@
 `liftweb-vim`
 =============
 
-A plugin for vim to ease navigation for projects that use the Lift Scala web framework.
+A plugin for vim to ease navigation for projects that use the Lift Scala web
+framework. Heavily inspired by the awesome that is Tim Pope's rails.vim (at
+http://rails.vim.tpope.net/) .
 
 Currently provides a few commands:
 * :Lmodel, Lsnippet, Lactor, Lcomet -- all take a class name and take you to
