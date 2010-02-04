@@ -17,6 +17,11 @@ takes an actual filename -- so you would say :Lview index.html, not :Lview
 index. Hopefully that will change in the near future so that both take either
 form.
 
+In addition, Lsnippet, Lactor, and Lcomet will hopefully also be able to expand
+with common suffixes, so that saying Lsnippet group would attempt to open
+Group.scala if it existed, or if not then GroupSnip.scala, or if not then
+GroupSnippet.scala.
+
 The semantics for Lview are also different than the other commands. Lview will
 recursively search for a file with the given name, while Lmodel and family will
 only look in the immediate package (model/ for Lmodel, snippet/ for Lsnippet,
