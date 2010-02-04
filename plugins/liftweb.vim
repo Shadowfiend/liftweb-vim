@@ -10,7 +10,8 @@
 if !exists("g:SetupScala")
   runtime! autoload/liftweb.vim
 
-  autocmd BufNewFile,BufRead *.scala call g:SetupLiftweb()
+  call g:SetupLiftweb()
+  autocmd BufNewFile,BufRead * call g:UpdateLiftwebPackagePrefix()
 endif
 
 

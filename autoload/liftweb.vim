@@ -17,7 +17,7 @@ else
   let g:liftweb_initialized = 1
 endif
 
-let g:liftweb_packagePrefix = "com/openstudy"
+let g:liftweb_enabled = 0
 
 function! g:liftweb_OpenTypeInPackage(package, type)
   let s:fname = "src/main/scala/" . g:liftweb_packagePrefix . '/' . a:package . '/' . a:type . '.scala'
@@ -30,6 +30,10 @@ function! s:CommandForType(type)
 endfunction
 
 function! s:OpenView(viewName)
+  if (!g:liftweb_enabled)
+    return
+  endif
+
   let s:view = glob('src/main/webapp/' . a:viewName)
   if !strlen(s:view)
     let s:viewList = split(glob('src/main/webapp/**/' . a:viewName), "\n")
@@ -45,6 +49,10 @@ function! s:OpenView(viewName)
 endfunction
 
 function s:OpenTestForClass()
+  if (!g:liftweb_enabled)
+    return
+  endif
+
   let s:classFile = expand('%')
   let s:testFile = substitute(substitute(s:classFile, "main", "test", ""),
                             \ "\\.scala", "Test.scala", "")
@@ -53,6 +61,10 @@ function s:OpenTestForClass()
 endfunction
 
 function s:OpenClassForTest()
+  if (!g:liftweb_enabled)
+    return
+  endif
+
   let s:testFile = expand('%')
 
   let s:classFile = substitute(substitute(s:testFile, "test", "main", ""),
@@ -62,12 +74,11 @@ function s:OpenClassForTest()
 endfunction
 
 function! g:SetupLiftweb()
-
-  if exists("g:liftwebInitialized")
+  if exists("g:liftweb_setup")
     return
   endif
 
-  let g:liftwebInitialized = 1
+  let g:liftweb_setup = 1
 
   command Lspec call s:OpenTestForClass()
   command Ltest Lspec
@@ -82,3 +93,47 @@ function! g:SetupLiftweb()
   command -nargs=1 Lview call s:OpenView(<f-args>)
 endfunction
 
+function! g:UpdateLiftwebPackagePrefix()
+  let g:liftweb_enabled = 1
+
+  let s:curFile = expand('%:p')
+  if !isdirectory(s:curFile)
+    let s:curFile = expand('%:p:h')
+  endif
+
+  if match(s:curFile, "src/main") != -1
+    let g:liftweb_rootDir = substitute(s:curFile, "src/main.*$", "", "")
+  elseif match(s:curFile, "src/test") != -1
+    let g:liftweb_rootDir = substitute(s:curFile, "src/test.*$", "", "")
+  elseif match(s:curFile, "src") != -1 && (isdirectory(s:curFile . "/main") || isdirectory(s:curFile . "/test"))
+    let g:liftweb_rootDir = substitute(s:curFile, "src$", "", "")
+  else
+    let g:liftweb_rootDir = s:curFile
+
+    if strlen(finddir("src/main/scala", g:liftweb_rootDir)) == 0
+      let g:liftweb_enabled = 0
+      return
+    endif
+  endif
+
+  execute "cd " . escape(g:liftweb_rootDir, " ")
+  let s:fullPath = finddir("snippet", g:liftweb_rootDir . "/src/main/scala/**")
+  if strlen(s:fullPath) == 0
+    let s:fullPath = finddir("comet", g:liftweb_rootDir . "/src/main/scala/**")
+  endif
+  if strlen(s:fullPath) == 0
+    let s:fullPath = finddir("model", g:liftweb_rootDir . "/src/main/scala/**")
+  endif
+
+  if strlen(s:fullPath) == 0
+    echo finddir("model", g:liftweb_rootDir . "/src/main/scala/**")
+    let g:liftweb_enabled = 0
+    return
+  end
+
+  let g:liftweb_packagePrefix = substitute(
+      \ substitute(
+                \ substitute(s:fullPath, g:liftweb_rootDir, "", ""),
+                  \ "src/main/scala/", "", ""),
+      \ "/[^/]*$", "", "")
+endfunction

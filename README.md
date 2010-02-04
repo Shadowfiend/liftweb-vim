@@ -42,8 +42,9 @@ Note that the plugin assumes a standard directory layout of:
             snippet/
             comet/
 
-Also note that currently the package/for/project part of the path is hard-coded
-in the plugin. That will be fixed soon.
+The project package is generally autodetected from the project root as well as
+from src/ and any subdirectory of test/ and main/ . Better package detection code is
+on the to-do list.
 
 Author
 ------
