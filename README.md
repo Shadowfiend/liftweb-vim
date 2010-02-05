@@ -56,7 +56,7 @@ on the to-do list.
 Author
 ------
 
-This plugin is copyright mew, Antonio Salazar Cardozo, and licensed under the
+This plugin is copyright me, Antonio Salazar Cardozo, and licensed under the
 same terms as Vim proper. No warranties are made, express or implied.
 
 I’m currently working on OpenStudy, a product designed to help students help
