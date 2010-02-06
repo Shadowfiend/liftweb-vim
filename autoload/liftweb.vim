@@ -78,9 +78,10 @@ function! s:OpenView(viewName)
     return
   endif
 
-  let s:view = glob('src/main/webapp/' . a:viewName)
+  let s:viewName = substitute(a:viewName, "\\.html$", "", "") . ".html"
+  let s:view = glob('src/main/webapp/' . s:viewName)
   if !strlen(s:view)
-    let s:viewList = split(glob('src/main/webapp/**/' . a:viewName), "\n")
+    let s:viewList = split(glob('src/main/webapp/**/' . s:viewName), "\n")
 
     if empty(s:viewList)
       return
