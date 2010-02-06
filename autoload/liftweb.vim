@@ -26,7 +26,46 @@ function! g:liftweb_OpenTypeInPackage(package, type)
 endfunction
 
 function! s:CommandForType(type)
-  execute ":command -nargs=1 L" . a:type . ' call g:liftweb_OpenTypeInPackage("' . escape(a:type, '"') . '", <f-args>)'
+  let s:upperType = substitute(a:type, ".*", "\\u\\0", "")
+
+  execute ':command -nargs=1 -complete=customlist,g:liftweb_Complete' . s:upperType . ' '
+            \ 'L'. a:type . ' call g:liftweb_OpenTypeInPackage("' . escape(a:type, '"') . '", <f-args>)'
+endfunction
+
+function! g:liftweb_CompleteModel(ArgLead, CmdLine, CursorPos)
+  return s:CompleteType("model", ["Model"], a:ArgLead)
+endfunction
+
+function! g:liftweb_CompleteSnippet(ArgLead, CmdLine, CursorPos)
+  return s:CompleteType("snippet", ["Snip", "Snippet"], a:ArgLead)
+endfunction
+
+function! g:liftweb_CompleteActor(ArgLead, CmdLine, CursorPos)
+  return s:CompleteType("actor", ["Actor"], a:ArgLead)
+endfunction
+
+function! g:liftweb_CompleteComet(ArgLead, CmdLine, CursorPos)
+  return s:CompleteType("comet", ["Comet"], a:ArgLead)
+endfunction
+
+function! s:CompleteType(type, suffixes, toComplete)
+  if match(a:toComplete, ".*\\..*$") != -1
+    let s:ending = substitute(a:toComplete, ".*\\(\\..*$\\)", "\\1", "")
+  else
+    let s:ending = ""
+  end
+  let s:endinglessComplete = substitute(a:toComplete, s:ending . "$", "", "")
+  let s:completionTarget = s:endinglessComplete . "*.scala"
+
+  let s:prefix = 'src/main/scala/' . g:liftweb_packagePrefix . '/' . a:type . '/**/'
+  let s:completions = split(glob(s:prefix . s:completionTarget), "\n")
+  for suffix in a:suffixes
+    let s:completions +=  split(glob(s:prefix . s:endinglessComplete . suffix . "*.scala"), "\n")
+  endfor
+
+  let s:completions = map(s:completions, 'substitute(v:val, "src/main/scala/' . g:liftweb_packagePrefix . '/' . a:type . '/", "", "")')
+
+  return s:completions
 endfunction
 
 function! s:OpenView(viewName)
@@ -73,6 +112,20 @@ function s:OpenClassForTest()
   execute ":edit " . escape(s:classFile, " ")
 endfunction
 
+function! s:CompleteView(ArgLead, CmdLine, CursorPos)
+  let s:isHtml = match(a:ArgLead, "\.html$") != -1
+
+  if s:isHtml
+    let s:views =  split(glob('src/main/webapp/**/' . a:ArgLead), "\n")
+  else
+    let s:views = split(glob('src/main/webapp/**/' . a:ArgLead . "*.html"), "\n")
+  endif
+
+  let s:views = map(s:views, 'substitute(v:val, "src/main/webapp/", "", "")')
+
+  return s:views
+endfunction
+
 function! g:SetupLiftweb()
   if exists("g:liftweb_setup")
     return
@@ -90,7 +143,7 @@ function! g:SetupLiftweb()
   call s:CommandForType("actor")
   call s:CommandForType("comet")
 
-  command -nargs=1 Lview call s:OpenView(<f-args>)
+  command -nargs=1 -complete=customlist,s:CompleteView Lview call s:OpenView(<f-args>)
 endfunction
 
 function! g:UpdateLiftwebPackagePrefix()
