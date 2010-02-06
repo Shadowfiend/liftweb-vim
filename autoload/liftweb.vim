@@ -20,7 +20,8 @@ endif
 let g:liftweb_enabled = 0
 
 function! g:liftweb_OpenTypeInPackage(package, type)
-  let s:fname = "src/main/scala/" . g:liftweb_packagePrefix . '/' . a:package . '/' . a:type . '.scala'
+  let s:fname = "src/main/scala/" . g:liftweb_packagePrefix . '/' . a:package . '/' .
+              \ substitute(a:type, "\\.scala$", "", "") . '.scala'
   
   execute ":e " . escape(s:fname, " ")
 endfunction
