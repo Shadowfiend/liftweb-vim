@@ -1,6 +1,23 @@
 `liftweb-vim`
 =============
 
+Installation
+------------
+
+To install liftweb-vim:
+
+* Copy `liftweb.vim` from `autoload/` to `~/.vim/autoload/`.
+* Copy `liftweb.vim` from `plugin/` to `~/.vim/plugin/`.
+* Copy `liftweb.txt` from `doc/` to `~/.vim/doc/`.
+* Open vim and then run `:helptags ~/.vim/doc`
+
+Then, once you've opened a scala file, liftweb.vim will be loaded for the
+session.  The commands will only work if you are in a file that has been
+detected to be in a Lift project.
+
+Usage
+-----
+
 A plugin for vim to ease navigation for projects that use the Lift Scala web
 framework. Heavily inspired by the awesome that is Tim Pope's rails.vim (at
 http://rails.vim.tpope.net/) .
