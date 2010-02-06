@@ -1,0 +1,67 @@
+LIFTWEB  Plugin for working with the Lift web framework *liftweb.vim* *scala-liftweb*
+
+Author: Antonio Salazar Cardozo <savedfastcool+vim@gmail.com>
+
+================================================================================
+ USAGE                     *liftweb-usage* *liftweb*
+
+A plugin for vim to ease navigation for projects that use the Lift Scala web
+framework. Heavily inspired by the awesome that is Tim Pope's rails.vim (at
+http://rails.vim.tpope.net/) .
+
+Currently provides a few commands:
+* :Lmodel, Lsnippet, Lactor, Lcomet -- all take a class name and take you to
+  the appropriate associated file
+* :Lview -- takes a class name and takes you to the appropriate view file
+* :Lspec or :Ltest -- when called from a class (e.g., GroupSnip), takes you to
+  the associated test file (GroupSnipTest)
+* :Lclass -- the opposite of Lspec, takes you to the class for the current test
+
+Lmodel and family can take a class name (without .scala) or file name (with
+.scala). Lview can likewise take a view name with or without .html. All of
+these functions have proper completion built-in, including alternatives (e.g.,
+if there is a view index.html and a static/index.html, Lview will complete on
+both and lets you switch between them using <Tab>).
+
+Lmodel and family, when completing, take into account potential suffixes. For 
+example, when completing on Group, Lmodel looks for Group.scala or
+GroupModel.scala; Lcomet looks for Group.scala or GroupComet.scala; Lactor looks
+for Group.scala or GroupActor.scala; and Lsnippet looks for Group.scala,
+GroupSnip.scala, or GroupSnippet.scala.
+
+The semantics for Lview are also different than the other commands. Lview will
+recursively search for a file with the given name, while Lmodel and family will
+only look in the immediate package (model/ for Lmodel, snippet/ for Lsnippet,
+etc). Note that the *completion* for Lmodel and family will search recursively,
+but the command itself will not. So running Lmodel Group will only open
+Group.scala, but running Lmodel Group<Tab> will complete Group.scala,
+GroupModel.scala, subpackage/Group.scala, subpackage/GroupModel.scala, and so
+on.
+
+Possibly forthcoming will be a broad recursive search for any
+appropriately-named file if you pass an argument to Lclass, Lspec, or Ltest.
+
+Note that the plugin assumes a standard directory layout of:
+
+    src/
+      main/
+        webapp/
+          <view files>
+        scala/
+          package/for/project/
+            model/
+            actor/
+            snippet/
+            comet/
+      test/
+        scala/
+          package/for/project/
+            model/
+            actor/
+            snippet/
+            comet/
+
+The project package is generally autodetected from the project root as well as
+from src/ and any subdirectory of test/ and main/ . Better package detection code is
+on the to-do list.
+
