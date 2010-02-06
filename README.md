@@ -13,21 +13,29 @@ Currently provides a few commands:
   the associated test file (GroupSnipTest)
 * :Lclass -- the opposite of Lspec, takes you to the class for the current test
 
-Currently there are some inconsistencies. Lmodel and family take a class name
-only -- so you would say :Lmodel Group, not :Lmodel Group.scala. Lview, however,
-takes an actual filename -- so you would say :Lview index.html, not :Lview
-index. Hopefully that will change in the near future so that both take either
-form.
+Lmodel and family can take a class name (without .scala) or file name (with
+.scala). Lview can likewise take a view name with or without .html. All of
+these functions have proper completion built-in, including alternatives (e.g.,
+if there is a view index.html and a static/index.html, Lview will complete on
+both and lets you switch between them using <Tab>).
 
-In addition, Lsnippet, Lactor, and Lcomet will hopefully also be able to expand
-with common suffixes, so that saying Lsnippet group would attempt to open
-Group.scala if it existed, or if not then GroupSnip.scala, or if not then
-GroupSnippet.scala.
+Lmodel and family, when completing, take into account potential suffixes. For
+example, when completing on Group, Lmodel looks for Group.scala or
+GroupModel.scala; Lcomet looks for Group.scala or GroupComet.scala; Lactor looks
+for Group.scala or GroupActor.scala; and Lsnippet looks for Group.scala,
+GroupSnip.scala, or GroupSnippet.scala.
 
 The semantics for Lview are also different than the other commands. Lview will
 recursively search for a file with the given name, while Lmodel and family will
 only look in the immediate package (model/ for Lmodel, snippet/ for Lsnippet,
-etc).
+etc). Note that the *completion* for Lmodel and family will search recursively,
+but the command itself will not. So running Lmodel Group will only open
+Group.scala, but running Lmodel Group<Tab> will complete Group.scala,
+GroupModel.scala, subpackage/Group.scala, subpackage/GroupModel.scala, and so
+on.
+
+Possibly forthcoming will be a broad recursive search for any
+appropriately-named file if you pass an argument to Lclass, Lspec, or Ltest.
 
 Note that the plugin assumes a standard directory layout of:
 
