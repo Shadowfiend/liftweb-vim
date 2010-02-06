@@ -23,6 +23,7 @@ framework. Heavily inspired by the awesome that is Tim Pope's rails.vim (at
 http://rails.vim.tpope.net/) .
 
 Currently provides a few commands:
+
 * :Lmodel, Lsnippet, Lactor, Lcomet -- all take a class name and take you to
   the appropriate associated file
 * :Lview -- takes a class name and takes you to the appropriate view file
