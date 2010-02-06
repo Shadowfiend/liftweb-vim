@@ -50,6 +50,10 @@ function! g:liftweb_CompleteComet(ArgLead, CmdLine, CursorPos)
 endfunction
 
 function! s:CompleteType(type, suffixes, toComplete)
+  if (!g:liftweb_enabled)
+    return
+  endif
+
   if match(a:toComplete, ".*\\..*$") != -1
     let s:ending = substitute(a:toComplete, ".*\\(\\..*$\\)", "\\1", "")
   else
@@ -114,6 +118,10 @@ function s:OpenClassForTest()
 endfunction
 
 function! s:CompleteView(ArgLead, CmdLine, CursorPos)
+  if (!g:liftweb_enabled)
+    return
+  endif
+
   let s:isHtml = match(a:ArgLead, "\.html$") != -1
 
   if s:isHtml
