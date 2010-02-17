@@ -152,6 +152,7 @@ function! g:SetupLiftweb()
   call s:CommandForType("snippet")
   call s:CommandForType("actor")
   call s:CommandForType("comet")
+  call s:CommandForType("lib")
 
   command -nargs=1 -complete=customlist,s:CompleteView Lview call s:OpenView(<f-args>)
 endfunction
