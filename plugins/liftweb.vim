@@ -7,7 +7,7 @@
 
 " ============================================================================
 
-if !exists("g:SetupScala")
+if !exists("g:SetupLiftweb")
   runtime! autoload/liftweb.vim
 
   call g:SetupLiftweb()

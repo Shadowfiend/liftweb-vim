@@ -136,6 +136,14 @@ function! s:CompleteView(ArgLead, CmdLine, CursorPos)
   return s:views
 endfunction
 
+function! s:OpenBoot()
+  if (!g:liftweb_enabled)
+    return
+  endif
+
+  execute ":edit " . escape("src/main/scala/bootstrap/liftweb/Boot.scala", " ")
+endfunction
+
 function! g:SetupLiftweb()
   if exists("g:liftweb_setup")
     return
@@ -146,6 +154,7 @@ function! g:SetupLiftweb()
   command Lspec call s:OpenTestForClass()
   command Ltest Lspec
   command Lclass call s:OpenClassForTest()
+  command Lboot call s:OpenBoot()
   " command-completion-custom
 
   call s:CommandForType("model")
