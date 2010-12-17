@@ -15,6 +15,9 @@ Then, once you've opened a scala file, liftweb.vim will be loaded for the
 session.  The commands will only work if you are in a file that has been
 detected to be in a Lift project.
 
+Alternatively, use Tim Pope's pathogen.vim and put this plugin's files in
+~/.vim/bundle/liftweb-vim/ (or extract the tarball directly there).
+
 Usage
 -----
 
@@ -24,12 +27,15 @@ http://rails.vim.tpope.net/) .
 
 Currently provides a few commands:
 
-* :Lmodel, Lsnippet, Lactor, Lcomet -- all take a class name and take you to
-  the appropriate associated file
-* :Lview -- takes a class name and takes you to the appropriate view file
+* :Lmodel, Lsnippet, Lactor, Lcomet, Llib -- all take a class name and take you
+  to the appropriate associated file
+* :Lview -- takes a filename and takes you to the appropriate view file
 * :Lspec or :Ltest -- when called from a class (e.g., GroupSnip), takes you to
   the associated test file (GroupSnipTest)
 * :Lclass -- the opposite of Lspec, takes you to the class for the current test
+* :Lboot -- takes you directly to Boot.scala
+* :Lcss, Ljavascript, Lsass -- takes a filename and takes you to the
+  appropriate file
 
 Lmodel and family can take a class name (without .scala) or file name (with
 .scala). Lview can likewise take a view name with or without .html. All of
@@ -52,6 +58,10 @@ Group.scala, but running Lmodel Group<Tab> will complete Group.scala,
 GroupModel.scala, subpackage/Group.scala, subpackage/GroupModel.scala, and so
 on.
 
+The same semantics are applied to Ljavascript, Lcss, or Lsass. These are
+assumed to be in src/main/webapp in javascripts, stylesheets, and sass-hidden
+directories, respectively.
+
 Possibly forthcoming will be a broad recursive search for any
 appropriately-named file if you pass an argument to Lclass, Lspec, or Ltest.
 
@@ -61,6 +71,9 @@ Note that the plugin assumes a standard directory layout of:
       main/
         webapp/
           <view files>
+          javascripts/
+          sass-hidden/
+          stylesheets/
         scala/
           package/for/project/
             model/
