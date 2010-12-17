@@ -91,10 +91,10 @@ function! s:OpenFileInWebapps(filename, suffix, subpath)
     return
   endif
 
-  let s:filename = substitute(a:filename, "\\." . suffix . "$", "", "") . "." . suffix
-  let s:file = glob('src/main/webapp/' . subpath . '/' . s:filename)
+  let s:filename = substitute(a:filename, "\\." . a:suffix . "$", "", "") . "." . a:suffix
+  let s:file = glob('src/main/webapp/' . a:subpath . '/' . s:filename)
   if !strlen(s:file)
-    let s:fileList = split(glob('src/main/webapp/' . subpath . '/**/' . s:filename), "\n")
+    let s:fileList = split(glob('src/main/webapp/' . a:subpath . '/**/' . s:filename), "\n")
 
     if empty(s:fileList)
       return
