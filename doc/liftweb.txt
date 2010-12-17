@@ -11,9 +11,9 @@ http://rails.vim.tpope.net/) .
 
 Currently provides a few commands:
 
-* :Lmodel, Lsnippet, Lactor, Lcomet -- all take a class name and take you to
-  the appropriate associated file
-* :Lview -- takes a class name and takes you to the appropriate view file
+* :Lmodel, Lsnippet, Lactor, Lcomet, Llib -- all take a class name and take you
+  to the appropriate associated file
+* :Lview -- takes a filename and takes you to the appropriate view file
 * :Lspec or :Ltest -- when called from a class (e.g., GroupSnip), takes you to
   the associated test file (GroupSnipTest)
 * :Lclass -- the opposite of Lspec, takes you to the class for the current test
