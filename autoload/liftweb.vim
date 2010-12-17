@@ -36,17 +36,17 @@ endfunction
 function! g:liftweb_CompleteModel(ArgLead, CmdLine, CursorPos)
   return s:CompleteType("model", ["Model"], a:ArgLead)
 endfunction
-
 function! g:liftweb_CompleteSnippet(ArgLead, CmdLine, CursorPos)
   return s:CompleteType("snippet", ["Snip", "Snippet"], a:ArgLead)
 endfunction
-
 function! g:liftweb_CompleteActor(ArgLead, CmdLine, CursorPos)
   return s:CompleteType("actor", ["Actor"], a:ArgLead)
 endfunction
-
 function! g:liftweb_CompleteComet(ArgLead, CmdLine, CursorPos)
   return s:CompleteType("comet", ["Comet"], a:ArgLead)
+endfunction
+function! g:liftweb_CompleteLib(ArgLead, CmdLine, CursorPos)
+  return s:CompleteType("lib", [], a:ArgLead)
 endfunction
 
 function! s:CompleteType(type, suffixes, toComplete)
@@ -74,23 +74,36 @@ function! s:CompleteType(type, suffixes, toComplete)
 endfunction
 
 function! s:OpenView(viewName)
+  call s:OpenFileInWebapps(a:viewName, "html", "")
+endfunction
+function! s:OpenCss(stylesheetName)
+  call s:OpenFileInWebapps(a:stylesheetName, "css", "stylesheets")
+endfunction
+function! s:OpenSass(sassName)
+  call s:OpenFileInWebapps(a:sassName, "sass", "sass-hidden")
+endfunction
+function! s:OpenJavaScript(jsName)
+  call s:OpenFileInWebapps(a:jsName, "js", "javascripts")
+endfunction
+
+function! s:OpenFileInWebapps(filename, suffix, subpath)
   if (!g:liftweb_enabled)
     return
   endif
 
-  let s:viewName = substitute(a:viewName, "\\.html$", "", "") . ".html"
-  let s:view = glob('src/main/webapp/' . s:viewName)
-  if !strlen(s:view)
-    let s:viewList = split(glob('src/main/webapp/**/' . s:viewName), "\n")
+  let s:filename = substitute(a:filename, "\\." . suffix . "$", "", "") . "." . suffix
+  let s:file = glob('src/main/webapp/' . subpath . '/' . s:filename)
+  if !strlen(s:file)
+    let s:fileList = split(glob('src/main/webapp/' . subpath . '/**/' . s:filename), "\n")
 
-    if empty(s:viewList)
+    if empty(s:fileList)
       return
     else
-      let s:view = s:viewList[0]
+      let s:file = s:fileList[0]
     endif
   endif
 
-  execute ":edit " . escape(s:view, " ")
+  execute ":edit " . escape(s:file, " ")
 endfunction
 
 function s:OpenTestForClass()
@@ -118,22 +131,35 @@ function s:OpenClassForTest()
   execute ":edit " . escape(s:classFile, " ")
 endfunction
 
+function! s:CompleteCss(ArgLead, CmdLine, CursorPos)
+  return s:CompleteFileInWebapps("stylesheets", "css", a:ArgLead)
+endfunction
+function! s:CompleteSass(ArgLead, CmdLine, CursorPos)
+  return s:CompleteFileInWebapps("sass-hidden", "sass", a:ArgLead)
+endfunction
+function! s:CompleteJavaScript(ArgLead, CmdLine, CursorPos)
+  return s:CompleteFileInWebapps("javascripts", "js", a:ArgLead)
+endfunction
 function! s:CompleteView(ArgLead, CmdLine, CursorPos)
+  return s:CompleteFileInWebapps("", "html", a:ArgLead)
+endfunction
+
+function! s:CompleteFileInWebapps(subpath, suffix, toComplete)
   if (!g:liftweb_enabled)
     return
   endif
 
-  let s:isHtml = match(a:ArgLead, "\.html$") != -1
+  let s:isType = match(a:toComplete, "\." . a:suffix . "$") != -1
 
-  if s:isHtml
-    let s:views =  split(glob('src/main/webapp/**/' . a:ArgLead), "\n")
+  if s:isType
+    let s:files =  split(glob('src/main/webapp/' . a:subpath . '/**/' . a:toComplete), "\n")
   else
-    let s:views = split(glob('src/main/webapp/**/' . a:ArgLead . "*.html"), "\n")
+    let s:files = split(glob('src/main/webapp/' . a:subpath . '/**/' . a:toComplete . "*." . a:suffix), "\n")
   endif
 
-  let s:views = map(s:views, 'substitute(v:val, "src/main/webapp/", "", "")')
+  let s:files = map(s:files, 'substitute(v:val, "src/main/webapp/' . a:subpath . '/", "", "")')
 
-  return s:views
+  return s:files
 endfunction
 
 function! s:OpenBoot()
@@ -164,6 +190,9 @@ function! g:SetupLiftweb()
   call s:CommandForType("lib")
 
   command -nargs=1 -complete=customlist,s:CompleteView Lview call s:OpenView(<f-args>)
+  command -nargs=1 -complete=customlist,s:CompleteCss Lcss call s:OpenCss(<f-args>)
+  command -nargs=1 -complete=customlist,s:CompleteSass Lsass call s:OpenSass(<f-args>)
+  command -nargs=1 -complete=customlist,s:CompleteJavaScript Ljavascript call s:OpenJavaScript(<f-args>)
 endfunction
 
 function! g:UpdateLiftwebPackagePrefix()
