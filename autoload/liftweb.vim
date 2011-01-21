@@ -239,3 +239,169 @@ function! g:UpdateLiftwebPackagePrefix()
                   \ "src/main/scala/", "", ""),
       \ "/[^/]*$", "", "")
 endfunction
+
+"------------------------------------------------------------------------------------------------
+" ENSIME HELPERS
+"------------------------------------------------------------------------------------------------
+
+fun! GotoNextError()
+  let l:nextError = NextError()
+
+  if (l:nextError != {})
+    call cursor(l:nextError['lnum'], l:nextError['col'])
+  endif
+endfun
+fun! GotoPreviousError()
+  let l:previousError = PreviousError()
+
+  if (l:previousError != {})
+    call cursor(l:previousError['lnum'], l:previousError['col'])
+  endif
+endfun
+fun! ShowCompleteError()
+  let l:errors = filter(getqflist(), 'v:val["bufnr"] == bufnr("") || v:val["bufnr"] == 0')
+  let l:currentLine = line('.')
+  let l:showError = 'no'
+  let l:errorText = ''
+
+  for error in l:errors
+    if (l:showError == 'no' && l:currentLine == error['lnum'])
+      let l:errorText = error['text']
+      let l:showError = 'yes'
+    elseif (l:showError == 'yes' && error['lnum'] == 0)
+      let l:errorText .= "\n".error['text']
+    elseif (l:showError == 'yes')
+      let l:showError = 'done'
+    endif
+  endfor
+
+  echo l:errorText
+endfun
+fun! EnsimeShortcuts()
+  map \gf <Esc>:EnsimeDefinition<CR>
+  map \ty <Esc>:EnsimeTypeAtCursor<CR>
+  map \rf <Esc>:EnsimeFormatSource<CR>
+  map \re <Esc>:EnsimeRepl<CR>
+  imap <C-Space> <C-X><C-O>
+  map <C-J> <Esc>:call GotoNextError()<CR>
+  map <C-K> <Esc>:call GotoPreviousError()<CR>
+  map <D-J> <Esc>:call ShowCompleteError()<CR>
+  " Consider doing this in a buffer so we can highlight the Scala types that
+  " are output. Or do it manually in ShowCompleteError.
+  "map <D-J> <Esc>:call HideCompleteError()<CR>
+
+  " TODO running sbt
+  " TODO running prepare-webapp or jetty-run
+endfun
+
+fun! BufferErrors()
+  return filter(getqflist(), 'v:val["bufnr"] == bufnr("")')
+endfun
+fun! RedBufferErrors()
+  if len(BufferErrors()) > 0
+    return printf("%2d", len(BufferErrors())).' errors ('.NextErrorLine().')'
+  else
+    return ''
+  endif
+endfun
+fun! NormalBufferErrors()
+  if len(BufferErrors()) > 0
+    return ''
+  else
+    return 'no errors'
+  endif
+endfun
+fun! PreviousError()
+  let l:bufferErrors = BufferErrors()
+
+  if (len(l:bufferErrors) > 0)
+    let l:currentLine = line('.')
+    let l:prevError = {}
+    for error in l:bufferErrors
+      if (error['lnum'] < l:currentLine)
+        let l:prevError = error
+      endif
+    endfor
+
+    if (l:prevError == {})
+      let l:prevError = l:bufferErrors[-1]
+    endif
+
+    return l:prevError
+  else
+    return ''
+  endif
+endfun
+fun! NextError()
+  let l:bufferErrors = BufferErrors()
+
+  if (len(l:bufferErrors) > 0)
+    let l:currentLine = line('.')
+    let l:nextError = {}
+    for error in l:bufferErrors
+      if (l:nextError == {} && error['lnum'] > l:currentLine)
+        let l:nextError = error
+      endif
+    endfor
+
+    if (l:nextError == {})
+      let l:nextError = l:bufferErrors[0]
+    endif
+
+    return l:nextError
+  else
+    return ''
+  endif
+endfun
+fun! NextErrorLine()
+  let l:nextError = NextError()
+
+  if (l:nextError == {})
+    return ''
+  else
+    return 'next error:L'.l:nextError['lnum']
+  endif
+endfun
+fun! CurrentError()
+  let l:bufferErrors = BufferErrors()
+  let l:currentLine = line('.')
+  let l:currentError = {}
+
+  for error in l:bufferErrors
+    if (l:currentLine == error['lnum'])
+      let l:currentError = error
+    endif
+  endfor
+
+  return l:currentError
+endfun
+fun! CurrentErrorText()
+  let l:currentError = CurrentError()
+
+  if (l:currentError == {})
+    return ''
+  else
+    return l:currentError['text']
+  endif
+endfun
+fun! NoError()
+  let l:currentError = CurrentError()
+
+  if (l:currentError == {})
+    return 'no error this line'
+  else
+    return ''
+  endif
+endfun
+fun! UpdateStatuslineForTypecheck()
+  set laststatus=2
+  setlocal statusline=[%#error#%{RedBufferErrors()}%*%{NormalBufferErrors()}]
+  setlocal statusline+=\ %f
+  setlocal statusline+=\ [%#error#%{CurrentErrorText()}%*%{NoError()}]
+  setlocal statusline+=%=C%c:L%l/%L
+endfun
+
+autocmd BufRead,BufNewFile *.scala call EnsimeShortcuts()
+autocmd BufRead,BufNewFile *.scala call UpdateStatuslineForTypecheck()
+
+map \e <Esc>:tabnew<CR><Esc>:Ensime<CR><Esc>gT<CR>
